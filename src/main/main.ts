@@ -63,6 +63,11 @@ ipcMain.on('open-dialog-vop', async (event, arg) => {
     });
 });
 
+ipcMain.on('error-message', async (event,arg) => {
+  console.log("-------- ERROR MESSAGE -------")
+  console.log(arg)
+})
+
 
 
 ipcMain.on('get-clients', async (event, arg) => {

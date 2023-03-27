@@ -135,3 +135,18 @@ a:hover {
 .btn-path-selector:hover {
   cursor: pointer;
 }
+
+.btn-validate {
+  border: 1px solid black;
+  text-align: center;
+  width: 100px;
+  margin: 50px auto;
+}
+
+.btn-validate:hover {
+  cursor: pointer;
+}
+
+.validation-form {
+  text-align: center;
+}
