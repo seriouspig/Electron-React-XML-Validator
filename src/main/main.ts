@@ -33,7 +33,7 @@ ipcMain.on('ipc-example', async (event, arg) => {
   event.reply('ipc-example', msgTemplate('pong'));
 });
 
-ipcMain.on('open-dialog', async (event, arg) => {
+ipcMain.on('open-dialog-content', async (event, arg) => {
   dialog
     .showOpenDialog(mainWindow, {
       properties: ['openDirectory'],
@@ -41,12 +41,29 @@ ipcMain.on('open-dialog', async (event, arg) => {
     .then((result) => {
       // console.log(result.canceled);
       console.log(result.filePaths);
-      event.reply('open-dialog', result.filePaths )
+      event.reply('open-dialog-content', result.filePaths )
     })
     .catch((err) => {
       console.log(err);
     });
 });
+
+ipcMain.on('open-dialog-vop', async (event, arg) => {
+  dialog
+    .showOpenDialog(mainWindow, {
+      properties: ['openDirectory'],
+    })
+    .then((result) => {
+      // console.log(result.canceled);
+      console.log(result.filePaths);
+      event.reply('open-dialog-vop', result.filePaths);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
+
+
 
 ipcMain.on('get-clients', async (event, arg) => {
     fs.readFile(

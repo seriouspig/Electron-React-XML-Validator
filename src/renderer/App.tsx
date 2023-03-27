@@ -5,7 +5,7 @@ import ClientButton from './components/ClientButton';
 
 function Hello() {
   const [contentPath, setContentPath] = useState("Please select a folder with Content/Ibox ...")
-  const [inboxPath, setInboxPath] = useState("Please select a path with the VOP ...")
+  const [vopPath, setVopPath] = useState("Please select a path with the VOP ...")
   const [xmlData, setXmlData] = useState(null);
   const [alnaVersion, setAlnaVersion] = useState(null);
   const [clients, setClients] = useState([]);
@@ -23,33 +23,32 @@ function Hello() {
 
   useEffect(() => {
     console.log('Running use Effect');
-    setContentPath('HEEEELLLOOO');
-    // getClients();
     window.electron.ipcRenderer.sendMessage('get-clients');
     console.log(clients);
   }, []);
 
 
   // THIS IS WHERE I AM DEFINING WHAT HAPPENS ON RETURN
-  window.electron.ipcRenderer.once('open-dialog', (arg) => {
-    // eslint-disable-next-line no-console
-    console.log('Window opened');
+  window.electron.ipcRenderer.once('open-dialog-content', (arg) => {
     console.log(arg);
-    setContentPath(arg);
-    
-    console.log('Window again');
+    setContentPath(arg);    
   });
+
+    window.electron.ipcRenderer.once('open-dialog-vop', (arg) => {
+      console.log(arg);
+      setVopPath(arg);
+    });
 
   window.electron.ipcRenderer.sendMessage('ipc-example', ['ping']);
 
   const handleSelectContentFolder = () => {
     // THIS IS WHERE I AM CALLING AN ACTION WHICH IS DEFINED IN MAIN.TS
-    window.electron.ipcRenderer.sendMessage('open-dialog');
+    window.electron.ipcRenderer.sendMessage('open-dialog-content');
   };
 
     const handleSelectVopFolder = () => {
       // THIS IS WHERE I AM CALLING AN ACTION WHICH IS DEFINED IN MAIN.TS
-      window.electron.ipcRenderer.sendMessage('open-dialog');
+      window.electron.ipcRenderer.sendMessage('open-dialog-vop');
     };
 
     const selectClient = (id) => {
@@ -89,7 +88,7 @@ function Hello() {
         <div className="btn-path-selector" onClick={handleSelectVopFolder}>
           Select VOP Path:
         </div>
-        <div className="btn-path">{inboxPath}</div>
+        <div className="btn-path">{vopPath}</div>
       </div>
     </div>
   );
