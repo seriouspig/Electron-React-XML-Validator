@@ -1,0 +1,14 @@
+.btn {
+    border: 1px solid black;
+    width: 100px;
+    text-align: center;
+}
+
+.btn:hover {
+    cursor: pointer;
+}
+
+.active {
+    background-color: grey;
+    color: white;
+}
