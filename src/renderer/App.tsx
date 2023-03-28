@@ -14,8 +14,8 @@ function Hello() {
   const [alnaVersion, setAlnaVersion] = useState(null);
   const [clients, setClients] = useState([]);
   const [selectedClient, setSelectedClient] = useState({});
-  const [validationActive, setValidationActive] = useState(false)
-  const [errorMessage, setErrorMessage] = useState("No Error Mesage")
+  const [validationActive, setValidationActive] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   // THIS IS WHERE I AM DEFINING WHAT HAPPENS ON RETURN
   window.electron.ipcRenderer.once('get-clients', (arg) => {
@@ -57,6 +57,7 @@ function Hello() {
   };
 
   const selectClient = (id) => {
+    setErrorMessage(null)
     console.log('Client selected: ' + id);
     console.log(clients);
     for (const client of clients) {
@@ -66,30 +67,28 @@ function Hello() {
     }
   };
 
+  // HELPER TO CHECK IF OBJECT IS EMPTY
+  const isObjEmpty = (obj) => {
+    return Object.keys(obj).length === 0 && obj.constructor === Object;
+  };
 
-// HELPER TO CHECK IF OBJECT IS EMPTY
-const isObjEmpty = (obj) => {
-    return Object.keys(obj).length === 0 && obj.constructor === Object
-}
+  const handleValidate = () => {
+    window.electron.ipcRenderer.sendMessage('error-message', errorMessage);
 
-const handleValidate = () => {
-      window.electron.ipcRenderer.sendMessage('error-message', errorMessage);
-
-  if (isObjEmpty(selectedClient)) {
-    console.log("No client selected")
-    setErrorMessage("No Client Selected")
-  } else if (contentPath === 'Please select a folder with Content/Ibox ...') { 
-    console.log("No Content/Inbox path selected")
-    setErrorMessage("No Content/Inpox folder path selected")
-   }
- else if (vopPath === 'Please select a path with the VOP ...') {
-  console.log("No VOP path selected")
-  setErrorMessage("No VOP folder path selected")
-} else {
-  console.log('Validating input');
-  setErrorMessage("Validating Input")
-}
-}
+    if (isObjEmpty(selectedClient)) {
+      console.log('No client selected');
+      setErrorMessage('No Client Selected');
+    } else if (contentPath === 'Please select a folder with Content/Ibox ...') {
+      console.log('No Content/Inbox path selected');
+      setErrorMessage('No Content/Inpox folder path selected');
+    } else if (vopPath === 'Please select a path with the VOP ...') {
+      console.log('No VOP path selected');
+      setErrorMessage('No VOP folder path selected');
+    } else {
+      console.log('Validating input');
+      setErrorMessage('Validating Input');
+    }
+  };
 
   return (
     <div>
@@ -120,9 +119,32 @@ const handleValidate = () => {
         </div>
         <div className="btn-path">{vopPath}</div>
       </div>
-      <div className="btn-validate" onClick={handleValidate}>Validate</div>
+      <div className="btn-validate" onClick={handleValidate}>
+        Validate
+      </div>
       <div className="validation-form">
-        {errorMessage}
+        {errorMessage === 'Validating Input' ? (
+          <div className="validation-table">
+            <div className="client-info">
+              <div>Client: {selectedClient.name}</div>
+              <div>Alna Version: {selectedClient.alnaVersion} </div>
+            </div>
+            <div className="package-info">
+              <div>Package Name: {selectedClient.name}</div>
+              <div>File: {selectedClient.alnaVersion} </div>
+            </div>
+            <div className="table-columns">
+              <div></div>
+              <div>Metadata YML</div>
+              <div>Version</div>
+              <div>VOP XML</div>
+              <div>Pass</div>
+              <div>Install Time</div>
+            </div>
+          </div>
+        ) : (
+          <div>{errorMessage}</div>
+        )}
       </div>
     </div>
   );

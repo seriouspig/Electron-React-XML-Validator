@@ -61,6 +61,10 @@ a:hover {
   margin: 20px 0;
 } */
 
+* {
+  box-sizing: border-box;
+}
+
 .App {
   text-align: center;
 }
@@ -149,4 +153,31 @@ a:hover {
 
 .validation-form {
   text-align: center;
+}
+
+.validation-table {
+  margin: 50px 100px;
+  height: 200px;
+  border: 1px solid black;
+  display: flex;
+  flex-direction: column;
+}
+
+.client-info {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid black;
+  width: 100%;
+}
+
+.package-info{
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid black;
+  width: 100%;
+}
+
+.table-columns {
+  display: flex;
+  justify-content: space-between;
 }
