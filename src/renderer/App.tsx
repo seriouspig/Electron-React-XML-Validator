@@ -2,6 +2,7 @@ import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import { useEffect, useState } from 'react';
 import ClientButton from './components/ClientButton';
+import { getRandomValues } from 'crypto';
 
 function Hello() {
   const [contentPath, setContentPath] = useState(
@@ -10,7 +11,7 @@ function Hello() {
   const [vopPath, setVopPath] = useState(
     'Please select a path with the VOP ...'
   );
-  const [xmlData, setXmlData] = useState(null);
+  const [xmlData, setXmlData] = useState([]);
   const [alnaVersion, setAlnaVersion] = useState(null);
   const [clients, setClients] = useState([]);
   const [selectedClient, setSelectedClient] = useState({});
@@ -57,7 +58,7 @@ function Hello() {
   };
 
   const selectClient = (id) => {
-    setErrorMessage(null)
+    setErrorMessage(null);
     console.log('Client selected: ' + id);
     console.log(clients);
     for (const client of clients) {
@@ -87,8 +88,21 @@ function Hello() {
     } else {
       console.log('Validating input');
       setErrorMessage('Validating Input');
+      window.electron.ipcRenderer.sendMessage('validate-xml', vopPath);
     }
   };
+
+  // THIS IS WHERE I AM DEFINING WHAT HAPPENS ON RETURN
+  window.electron.ipcRenderer.once('validate-xml', (arg) => {
+    // eslint-disable-next-line no-console
+    console.log('Got the XML object');
+    // console.log(arg);
+    // setClients(arg);
+    console.log('Set XML object to arg');
+    setXmlData(arg);
+    console.log(xmlData);
+    // console.log(clients);
+  });
 
   return (
     <div>
@@ -133,14 +147,28 @@ function Hello() {
               <div>Package Name: {selectedClient.name}</div>
               <div>File: {selectedClient.alnaVersion} </div>
             </div>
-            <div className="table-columns">
-              <div></div>
+            <div className="table-columns header">
+              <div>Volume</div>
               <div>Metadata YML</div>
               <div>Version</div>
+              <div>VOP YML</div>
               <div>VOP XML</div>
               <div>Pass</div>
               <div>Install Time</div>
             </div>
+            {xmlData.map((value) => {
+              return (
+                <div className="table-columns">
+                  <div>{value.attributes.id}</div>
+                  <div>Metadata YML</div>
+                  <div>Version</div>
+                  <div>{value.attributes.version}</div>
+                  <div>{value.attributes.version}</div>
+                  <div>Pass</div>
+                  <div>{value.elements[1].attributes.seconds / 60} mins</div>
+                </div>
+              );
+            })}
           </div>
         ) : (
           <div>{errorMessage}</div>

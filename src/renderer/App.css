@@ -153,14 +153,15 @@ a:hover {
 
 .validation-form {
   text-align: center;
+  
 }
 
 .validation-table {
-  margin: 50px 100px;
-  height: 200px;
+  margin: 50px 20px;
   border: 1px solid black;
   display: flex;
   flex-direction: column;
+  background: grey;
 }
 
 .client-info {
@@ -168,6 +169,7 @@ a:hover {
   justify-content: space-between;
   border-bottom: 1px solid black;
   width: 100%;
+  background: white;
 }
 
 .package-info{
@@ -175,9 +177,21 @@ a:hover {
   justify-content: space-between;
   border-bottom: 1px solid black;
   width: 100%;
+  background: white;
 }
 
 .table-columns {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  justify-items: center;
+  grid-gap: 1px;
+}
+
+.header {
+  border-bottom: black 1px solid;
+}
+
+.table-columns > div {
+  width: 100%;
+      background-color: white;
 }

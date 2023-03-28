@@ -9,13 +9,15 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain, dialog, } from 'electron';
+import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
-const fs = require('fs');
 
+const fs = require('fs');
+var convert = require('xml-js');
+const glob = require('glob');
 
 class AppUpdater {
   constructor() {
@@ -41,7 +43,7 @@ ipcMain.on('open-dialog-content', async (event, arg) => {
     .then((result) => {
       // console.log(result.canceled);
       console.log(result.filePaths);
-      event.reply('open-dialog-content', result.filePaths )
+      event.reply('open-dialog-content', result.filePaths);
     })
     .catch((err) => {
       console.log(err);
@@ -63,30 +65,51 @@ ipcMain.on('open-dialog-vop', async (event, arg) => {
     });
 });
 
-ipcMain.on('error-message', async (event,arg) => {
-  console.log("-------- ERROR MESSAGE -------")
-  console.log(arg)
-})
-
-
-
-ipcMain.on('get-clients', async (event, arg) => {
-    fs.readFile(
-      '/Users/piotrgryko/repos/integration_tool/integration_gui/nodegui/react-nodegui-starter/src/components/clientconfig.json',
-      'utf8',
-      (error, data) => {
-        if (error) {
-          event.reply('get-clients', error);
-          return;
-        }
-        console.log(JSON.parse(data).clients);
-        console.log("======== DUPA BLADA =========")
-        event.reply('get-clients', JSON.parse(data).clients);
-      }
-    );
+ipcMain.on('error-message', async (event, arg) => {
+  console.log('-------- ERROR MESSAGE -------');
+  console.log(arg);
 });
 
+ipcMain.on('get-clients', async (event, arg) => {
+  fs.readFile(
+    '/Users/piotrgryko/repos/integration_tool/integration_gui/nodegui/react-nodegui-starter/src/components/clientconfig.json',
+    'utf8',
+    (error, data) => {
+      if (error) {
+        event.reply('get-clients', error);
+        return;
+      }
+      console.log(JSON.parse(data).clients);
+      console.log('======== DUPA BLADA =========');
+      event.reply('get-clients', JSON.parse(data).clients);
+    }
+  );
+});
 
+// ------------------ VALIDATE XML -----------------
+
+ipcMain.on('validate-xml', async (event, arg) => {
+
+  console.log(arg[0])
+
+  var files = fs.readdirSync(arg[0]).filter((fn) => fn.endsWith('.xml'));
+  const xmlFile = arg[0] + '/' + files[0];
+
+  fs.readFile(
+    xmlFile,
+    'utf8',
+    (error, data) => {
+      if (error) {
+        event.reply('validate-xml', error);
+        return;
+      }
+      var result = convert.xml2json(data, { compact: false, spaces: 4 });
+
+      console.log(JSON.parse(result).elements[1].elements);
+      event.reply('validate-xml', JSON.parse(result).elements[1].elements);
+    }
+  );
+});
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
