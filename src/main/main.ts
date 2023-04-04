@@ -18,6 +18,7 @@ import { resolveHtmlPath } from './util';
 const fs = require('fs');
 var convert = require('xml-js');
 const glob = require('glob');
+const yaml = require('js-yaml');
 
 class AppUpdater {
   constructor() {
@@ -117,8 +118,85 @@ ipcMain.on('validate-xml', async (event, arg) => {
     }
     var result = convert.xml2json(data, { compact: false, spaces: 4 });
 
-    console.log(JSON.parse(result).elements[1].elements);
-    event.reply('validate-xml', JSON.parse(result).elements[1].elements);
+    // console.log(JSON.parse(result).elements[1].elements);
+
+    // Now check the metadata in each yml and create an object
+    var ymlDirs = fs
+      .readdirSync(arg[0])
+      .filter((dn) => dn.startsWith('vopPackage_bluebox'));
+    console.log(ymlDirs);
+
+    const objArray = [];
+    var xmlObject = JSON.parse(result).elements[1].elements;
+    console.log('=========== THIS IS THE XML OBJECT ===============');
+    console.log(xmlObject);
+    xmlObject.map((value) => console.log(value.attributes.id));
+    xmlObject.map((value) =>
+      objArray.push({
+        xmlVersion: value.attributes.version ,
+        packageName: value.attributes.id ,
+      })
+    );
+    var packageNames = []
+    xmlObject.map((value) => packageNames.push(value.attributes.id))
+
+    console.log(objArray)
+    console.log(packageNames)
+
+
+    objArray.map((value) => {
+        if (ymlDirs.includes('vopPackage_' + value.packageName)) {
+          console.log(value.packageName + ' exists in the object');
+              // Read the packaged Version from each yml
+              try {
+                const doc = yaml.load(
+                  fs.readFileSync(
+                    arg[0] +
+                      '/' +
+                      'vopPackage_' +
+                      value.packageName +
+                      '/metadata.yml',
+                    'utf8'
+                  )
+                );
+                console.log(doc);
+                value.ymlVersion = doc.packageVersion
+                //  obj[ymlDir.replace('vopPackage_', '')].ymlVersion =
+                //    doc.packageVersion;
+              } catch (e) {
+                console.log(e);
+              }
+        }
+
+    })
+
+    console.log(objArray)
+
+    // for (const obj of objArray) {
+    //   if (packageNames.includes(ymlDir.replace('vopPackage_', ''))) {
+    //     console.log(ymlDir + ' exists in the object');
+
+    //     // Read the packaged Version from each yml
+    //     try {
+    //       const doc = yaml.load(fs.readFileSync(arg[0] + "/" + ymlDir + "/metadata.yml" , 'utf8'));
+    //       console.log(doc);
+    //       //  obj[ymlDir.replace('vopPackage_', '')].ymlVersion =
+    //       //    doc.packageVersion;
+    //     } catch (e) {
+    //       console.log(e);
+    //     }
+
+       
+    //   }
+    // }
+
+
+
+    //  for (const key of yourArray) {
+    //    obj[key] = whatever;
+    //  }
+
+    event.reply('validate-xml', objArray);
   });
 });
 

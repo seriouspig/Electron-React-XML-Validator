@@ -163,13 +163,13 @@ function Hello() {
             {xmlData.map((value) => {
               return (
                 <div className="table-columns">
-                  <div>{value.attributes.id}</div>
+                  <div>{value.packageName}</div>
                   <div>Metadata YML</div>
                   <div>Version</div>
-                  <div>{value.attributes.version}</div>
-                  <div>{value.attributes.version}</div>
+                  <div>{value.ymlVersion}</div>
+                  <div>{value.xmlVersion}</div>
                   <div>Pass</div>
-                  <div>{value.elements[1].attributes.seconds / 60} mins</div>
+                  <div> mins</div>
                 </div>
               );
             })}
