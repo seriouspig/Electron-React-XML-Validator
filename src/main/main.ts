@@ -59,19 +59,22 @@ ipcMain.on('open-dialog-vop', async (event, arg) => {
       // console.log(result.canceled);
       console.log(result.filePaths);
       // Check if folder contains vopLoad_bluebox_1.5.4.xml
-      fs.exists(
-        result.filePaths + '/vopLoad_bluebox_1.5.4.xml',
-        function (exists) {
-          if (!exists) {
-            event.reply(
-              'open-dialog-vop',
-              'Not a valid VOP, no xml file detected ...'
-            );
-          } else {
-            event.reply('open-dialog-vop', result.filePaths);
-          }
-        }
-      );
+      var files = fs
+        .readdirSync(result.filePaths[0])
+        .filter((fn) => fn.startsWith('vopLoad_bluebox_'))
+        .filter((fn) => fn.endsWith('.xml'));
+      console.log(files[0]);
+
+      if (files.length < 1) {
+        event.reply(
+          'open-dialog-vop',
+          'Not a valid VOP, no xml file detected ...'
+        );
+      } else {
+        event.reply('open-dialog-vop', result.filePaths);
+      }
+
+      console.log(result.filePaths + '/' + files);
     })
     .catch((err) => {
       console.log(err);
