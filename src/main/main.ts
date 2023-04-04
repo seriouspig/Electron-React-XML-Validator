@@ -58,7 +58,20 @@ ipcMain.on('open-dialog-vop', async (event, arg) => {
     .then((result) => {
       // console.log(result.canceled);
       console.log(result.filePaths);
-      event.reply('open-dialog-vop', result.filePaths);
+      // Check if folder contains vopLoad_bluebox_1.5.4.xml
+      fs.exists(
+        result.filePaths + '/vopLoad_bluebox_1.5.4.xml',
+        function (exists) {
+          if (!exists) {
+            event.reply(
+              'open-dialog-vop',
+              'Not a valid VOP, no xml file detected ...'
+            );
+          } else {
+            event.reply('open-dialog-vop', result.filePaths);
+          }
+        }
+      );
     })
     .catch((err) => {
       console.log(err);
@@ -89,26 +102,21 @@ ipcMain.on('get-clients', async (event, arg) => {
 // ------------------ VALIDATE XML -----------------
 
 ipcMain.on('validate-xml', async (event, arg) => {
-
-  console.log(arg[0])
+  console.log(arg[0]);
 
   var files = fs.readdirSync(arg[0]).filter((fn) => fn.endsWith('.xml'));
   const xmlFile = arg[0] + '/' + files[0];
 
-  fs.readFile(
-    xmlFile,
-    'utf8',
-    (error, data) => {
-      if (error) {
-        event.reply('validate-xml', error);
-        return;
-      }
-      var result = convert.xml2json(data, { compact: false, spaces: 4 });
-
-      console.log(JSON.parse(result).elements[1].elements);
-      event.reply('validate-xml', JSON.parse(result).elements[1].elements);
+  fs.readFile(xmlFile, 'utf8', (error, data) => {
+    if (error) {
+      event.reply('validate-xml', error);
+      return;
     }
-  );
+    var result = convert.xml2json(data, { compact: false, spaces: 4 });
+
+    console.log(JSON.parse(result).elements[1].elements);
+    event.reply('validate-xml', JSON.parse(result).elements[1].elements);
+  });
 });
 
 if (process.env.NODE_ENV === 'production') {

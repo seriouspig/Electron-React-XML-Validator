@@ -17,6 +17,7 @@ function Hello() {
   const [selectedClient, setSelectedClient] = useState({});
   const [validationActive, setValidationActive] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
+  const [isVopValid, setIsVopValid] = useState(false)
 
   // THIS IS WHERE I AM DEFINING WHAT HAPPENS ON RETURN
   window.electron.ipcRenderer.once('get-clients', (arg) => {
@@ -85,6 +86,9 @@ function Hello() {
     } else if (vopPath === 'Please select a path with the VOP ...') {
       console.log('No VOP path selected');
       setErrorMessage('No VOP folder path selected');
+    } else if (vopPath === "Not a valid VOP, no xml file detected ...") {
+      console.log('Not a valid VOP, no xml file detected ...')
+      setErrorMessage('Not a valid VOP, no xml file detected ...');
     } else {
       console.log('Validating input');
       setErrorMessage('Validating Input');
