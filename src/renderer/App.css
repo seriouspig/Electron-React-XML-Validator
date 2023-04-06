@@ -182,7 +182,7 @@ a:hover {
 
 .table-columns {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(8, 1fr);
   justify-items: center;
   grid-gap: 1px;
 }

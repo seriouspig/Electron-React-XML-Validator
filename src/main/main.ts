@@ -130,13 +130,17 @@ ipcMain.on('validate-xml', async (event, arg) => {
     var xmlObject = JSON.parse(result).elements[1].elements;
     console.log('=========== THIS IS THE XML OBJECT ===============');
     console.log(xmlObject);
+    console.log(xmlObject[0].elements[1].attributes.seconds);
     xmlObject.map((value) => console.log(value.attributes.id));
     xmlObject.map((value) =>
       objArray.push({
-        xmlVersion: value.attributes.version ,
-        packageName: value.attributes.id ,
+        xmlVersion: value.attributes.version,
+        packageName: value.attributes.id,
+        installTime: value.elements[1].attributes.seconds,
       })
     );
+
+    
     var packageNames = []
     xmlObject.map((value) => packageNames.push(value.attributes.id))
 

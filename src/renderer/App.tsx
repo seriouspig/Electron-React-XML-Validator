@@ -158,6 +158,7 @@ function Hello() {
               <div>VOP YML</div>
               <div>VOP XML</div>
               <div>Pass</div>
+              <div>Size</div>
               <div>Install Time</div>
             </div>
             {xmlData.map((value) => {
@@ -169,7 +170,8 @@ function Hello() {
                   <div>{value.ymlVersion}</div>
                   <div>{value.xmlVersion}</div>
                   <div>Pass</div>
-                  <div> mins</div>
+                  <div>Mb</div>
+                  <div> {value.installTime / 60 } mins </div>
                 </div>
               );
             })}
