@@ -166,7 +166,7 @@ function Hello() {
                 <div className="table-columns">
                   <div>{value.packageName}</div>
                   <div>Metadata YML</div>
-                  <div>Version</div>
+                  <div>{value.version}</div>
                   <div>{value.ymlVersion}</div>
                   <div>{value.xmlVersion}</div>
                   <div>Pass</div>
