@@ -170,7 +170,7 @@ function Hello() {
                   <div>{value.ymlVersion}</div>
                   <div>{value.xmlVersion}</div>
                   <div>Pass</div>
-                  <div>Mb</div>
+                  <div>{value.size} Mb</div>
                   <div> {value.installTime / 60 } mins </div>
                 </div>
               );

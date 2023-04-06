@@ -19,6 +19,7 @@ const fs = require('fs');
 var convert = require('xml-js');
 const glob = require('glob');
 const yaml = require('js-yaml');
+const fastFolderSizeSync = require('fast-folder-size/sync');
 
 class AppUpdater {
   constructor() {
@@ -140,41 +141,48 @@ ipcMain.on('validate-xml', async (event, arg) => {
       })
     );
 
-    
-    var packageNames = []
-    xmlObject.map((value) => packageNames.push(value.attributes.id))
+    var packageNames = [];
+    xmlObject.map((value) => packageNames.push(value.attributes.id));
 
-    console.log(objArray)
-    console.log(packageNames)
-
+    console.log(objArray);
+    console.log(packageNames);
 
     objArray.map((value) => {
-        if (ymlDirs.includes('vopPackage_' + value.packageName)) {
-          console.log(value.packageName + ' exists in the object');
-              // Read the packaged Version from each yml
-              try {
-                const doc = yaml.load(
-                  fs.readFileSync(
-                    arg[0] +
-                      '/' +
-                      'vopPackage_' +
-                      value.packageName +
-                      '/metadata.yml',
-                    'utf8'
-                  )
-                );
-                console.log(doc);
-                value.ymlVersion = doc.packageVersion
-                //  obj[ymlDir.replace('vopPackage_', '')].ymlVersion =
-                //    doc.packageVersion;
-              } catch (e) {
-                console.log(e);
-              }
+      if (ymlDirs.includes('vopPackage_' + value.packageName)) {
+        console.log(value.packageName + ' exists in the object');
+        // Get the size of each folder
+        const bytes = fastFolderSizeSync(
+          arg[0] + '/' + 'vopPackage_' + value.packageName
+        );
+
+        console.log(
+          '------------------ SIZE OF ' + value.packageName + ' is: ' + Math.round(bytes / 1000000) + ' Mb'
+        );
+        value.size = Math.round(bytes / 1000000);
+
+        // Read the packaged Version from each yml
+        try {
+          const doc = yaml.load(
+            fs.readFileSync(
+              arg[0] +
+                '/' +
+                'vopPackage_' +
+                value.packageName +
+                '/metadata.yml',
+              'utf8'
+            )
+          );
+          console.log(doc);
+          value.ymlVersion = doc.packageVersion;
+          //  obj[ymlDir.replace('vopPackage_', '')].ymlVersion =
+          //    doc.packageVersion;
+        } catch (e) {
+          console.log(e);
         }
+      }
+    });
 
-    })
-
-    console.log(objArray)
+    console.log(objArray);
 
     // for (const obj of objArray) {
     //   if (packageNames.includes(ymlDir.replace('vopPackage_', ''))) {
@@ -190,11 +198,8 @@ ipcMain.on('validate-xml', async (event, arg) => {
     //       console.log(e);
     //     }
 
-       
     //   }
     // }
-
-
 
     //  for (const key of yourArray) {
     //    obj[key] = whatever;
