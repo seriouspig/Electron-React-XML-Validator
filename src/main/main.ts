@@ -108,9 +108,13 @@ ipcMain.on('get-clients', async (event, arg) => {
 
 ipcMain.on('validate-xml', async (event, arg) => {
   console.log(arg[0]);
+  console.log("------ this is the VOP path: ")
+  console.log(arg[0][0])
+  console.log("-------this is the content path: ")
+  console.log(arg[1][0])
 
-  var files = fs.readdirSync(arg[0]).filter((fn) => fn.endsWith('.xml'));
-  const xmlFile = arg[0] + '/' + files[0];
+  var files = fs.readdirSync(arg[0][0]).filter((fn) => fn.endsWith('.xml'));
+  const xmlFile = arg[0][0] + '/' + files[0];
 
   fs.readFile(xmlFile, 'utf8', (error, data) => {
     if (error) {
@@ -123,7 +127,7 @@ ipcMain.on('validate-xml', async (event, arg) => {
 
     // Now check the metadata in each yml and create an object
     var ymlDirs = fs
-      .readdirSync(arg[0])
+      .readdirSync(arg[0][0])
       .filter((dn) => dn.startsWith('vopPackage_bluebox'));
     console.log(ymlDirs);
 
@@ -168,7 +172,7 @@ ipcMain.on('validate-xml', async (event, arg) => {
         // Get the version from each folder
         console.log('================= THIS IS THE VERSION FILE : ');
         console.log(
-          arg[0] +
+          arg[0][0] +
             '/' +
             'vopPackage_' +
             value.packageName +
@@ -180,7 +184,7 @@ ipcMain.on('validate-xml', async (event, arg) => {
         );
 
         const versionFile =
-          arg[0] +
+          arg[0][0] +
           '/' +
           'vopPackage_' +
           value.packageName +
@@ -202,7 +206,7 @@ ipcMain.on('validate-xml', async (event, arg) => {
         try {
           const doc = yaml.load(
             fs.readFileSync(
-              arg[0] +
+              arg[0][0] +
                 '/' +
                 'vopPackage_' +
                 value.packageName +

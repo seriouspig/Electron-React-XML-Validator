@@ -92,7 +92,7 @@ function Hello() {
     } else {
       console.log('Validating input');
       setErrorMessage('Validating Input');
-      window.electron.ipcRenderer.sendMessage('validate-xml', vopPath);
+      window.electron.ipcRenderer.sendMessage('validate-xml', [vopPath, contentPath]);
     }
   };
 
