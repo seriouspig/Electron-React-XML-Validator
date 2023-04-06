@@ -165,13 +165,18 @@ function Hello() {
               return (
                 <div className="table-columns">
                   <div>{value.packageName}</div>
-                  <div>Metadata YML</div>
+                  <div>{value.ymlContent}</div>
                   <div>{value.version}</div>
                   <div>{value.ymlVersion}</div>
                   <div>{value.xmlVersion}</div>
-                  <div>Pass</div>
+                  <div>
+                    {value.ymlContent === value.ymlVersion ||
+                    value.ymlContent === '-'
+                      ? 'Pass'
+                      : 'Fail'}
+                  </div>
                   <div>{value.size} Mb</div>
-                  <div> {value.installTime / 60 } mins </div>
+                  <div> {value.installTime / 60} mins </div>
                 </div>
               );
             })}
@@ -180,6 +185,10 @@ function Hello() {
           <div>{errorMessage}</div>
         )}
       </div>
+      {errorMessage === 'Validating Input' && 
+      (<div className="btn-merge" onClick={handleValidate}>
+        Merge
+      </div>)}
     </div>
   );
 }

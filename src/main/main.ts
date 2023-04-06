@@ -108,10 +108,12 @@ ipcMain.on('get-clients', async (event, arg) => {
 
 ipcMain.on('validate-xml', async (event, arg) => {
   console.log(arg[0]);
-  console.log("------ this is the VOP path: ")
-  console.log(arg[0][0])
-  console.log("-------this is the content path: ")
-  console.log(arg[1][0])
+  console.log('------ this is the VOP path: ');
+  console.log(arg[0][0]);
+  console.log('-------this is the content path: ');
+  console.log(arg[1][0]);
+
+  const objArray = [];
 
   var files = fs.readdirSync(arg[0][0]).filter((fn) => fn.endsWith('.xml'));
   const xmlFile = arg[0][0] + '/' + files[0];
@@ -131,7 +133,6 @@ ipcMain.on('validate-xml', async (event, arg) => {
       .filter((dn) => dn.startsWith('vopPackage_bluebox'));
     console.log(ymlDirs);
 
-    const objArray = [];
     var xmlObject = JSON.parse(result).elements[1].elements;
     console.log('=========== THIS IS THE XML OBJECT ===============');
     console.log(xmlObject);
@@ -197,7 +198,7 @@ ipcMain.on('validate-xml', async (event, arg) => {
         try {
           var data = fs.readFileSync(versionFile, 'utf8');
           console.log(data.toString());
-          value.version = data.toString()
+          value.version = data.toString();
         } catch (e) {
           console.log('Error:', e.stack);
         }
@@ -215,14 +216,54 @@ ipcMain.on('validate-xml', async (event, arg) => {
             )
           );
           console.log(doc);
-          value.ymlVersion = doc.packageVersion;
+          if (doc) {
+            value.ymlVersion = doc.packageVersion;
+          } else {
+            value.ymlVersion = '-';
+          }
+
           //  obj[ymlDir.replace('vopPackage_', '')].ymlVersion =
           //    doc.packageVersion;
         } catch (e) {
           console.log(e);
         }
+        // ---------------------- CONTENT FOLDER PART
+        // Read the packaged Version from each yml in the content folder
+        if (
+          fs.existsSync(
+            arg[1][0] +
+              '/' +
+              'vopPackage_' +
+              value.packageName +
+              '/metadata.yml'
+          )
+        ) {
+          // Do something
+
+          try {
+            const doc = yaml.load(
+              fs.readFileSync(
+                arg[1][0] +
+                  '/' +
+                  'vopPackage_' +
+                  value.packageName +
+                  '/metadata.yml',
+                'utf8'
+              )
+            );
+            console.log(doc);
+
+            value.ymlContent = doc.packageVersion;
+          } catch (e) {
+            console.log(e);
+          }
+        } else {
+          value.ymlContent = '-';
+        }
       }
     });
+
+    // Retur obj array
 
     console.log(objArray);
 
