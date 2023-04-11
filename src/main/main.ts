@@ -14,6 +14,7 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import { version } from 'os';
 
 const fs = require('fs');
 var convert = require('xml-js');
@@ -195,38 +196,52 @@ ipcMain.on('validate-xml', async (event, arg) => {
           value.packageName.replace('bluebox_', '') +
           'version';
 
-        try {
-          var data = fs.readFileSync(versionFile, 'utf8');
-          console.log(data.toString());
-          value.version = data.toString();
-        } catch (e) {
-          console.log('Error:', e.stack);
+        if (fs.existsSync(versionFile))
+          try {
+            var data = fs.readFileSync(versionFile, 'utf8');
+            console.log(data.toString());
+
+              value.version = data.toString();
+
+          } catch (e) {
+            console.log('Error:', e.stack);
+          }
+        else {
+          value.version = '-'
         }
 
         // Read the packaged Version from each yml
-        try {
-          const doc = yaml.load(
-            fs.readFileSync(
-              arg[0][0] +
-                '/' +
-                'vopPackage_' +
-                value.packageName +
-                '/metadata.yml',
-              'utf8'
-            )
-          );
-          console.log(doc);
-          if (doc) {
-            value.ymlVersion = doc.packageVersion;
-          } else {
-            value.ymlVersion = '-';
-          }
+        if (
+          fs.existsSync(
+            arg[0][0] +
+              '/' +
+              'vopPackage_' +
+              value.packageName +
+              '/metadata.yml'
+          )
+        )
+          try {
+            const doc = yaml.load(
+              fs.readFileSync(
+                arg[0][0] +
+                  '/' +
+                  'vopPackage_' +
+                  value.packageName +
+                  '/metadata.yml',
+                'utf8'
+              )
+            );
+            console.log(doc);
 
-          //  obj[ymlDir.replace('vopPackage_', '')].ymlVersion =
-          //    doc.packageVersion;
-        } catch (e) {
-          console.log(e);
-        }
+            value.ymlVersion = doc.packageVersion;
+
+            //  obj[ymlDir.replace('vopPackage_', '')].ymlVersion =
+            //    doc.packageVersion;
+          } catch (e) {
+            console.log(e);
+          }
+        else value.ymlVersion = '-';
+
         // ---------------------- CONTENT FOLDER PART
         // Read the packaged Version from each yml in the content folder
         if (
@@ -269,6 +284,20 @@ ipcMain.on('validate-xml', async (event, arg) => {
 
     event.reply('validate-xml', objArray);
   });
+});
+
+// --------------------------- Get package name and file name ---------
+
+ipcMain.on('get-package-name', async (event, arg) => {
+  console.log(arg);
+  const packageName = path.basename(arg[0]);
+  var files = fs
+    .readdirSync(arg[0] + '/vopPackage_bluebox')
+    .filter((fn) => fn.endsWith('.dop.gpg'));
+  const replyObject = { packageName: '', dopName: '' };
+  replyObject.packageName = packageName;
+  replyObject.dopName = files[0];
+  event.reply('get-package-name', replyObject);
 });
 
 if (process.env.NODE_ENV === 'production') {

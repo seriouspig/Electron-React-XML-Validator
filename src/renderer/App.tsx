@@ -3,6 +3,7 @@ import './App.css';
 import { useEffect, useState } from 'react';
 import ClientButton from './components/ClientButton';
 import { getRandomValues } from 'crypto';
+import { validateHeaderValue } from 'http';
 
 function Hello() {
   const [contentPath, setContentPath] = useState(
@@ -17,8 +18,10 @@ function Hello() {
   const [selectedClient, setSelectedClient] = useState({});
   const [validationActive, setValidationActive] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
-  const [isVopValid, setIsVopValid] = useState(false)
-
+  const [isVopValid, setIsVopValid] = useState(false);
+  const [packageName, setPackageName] = useState('');
+  const [dopName, setDopName] = useState('');
+  const [mergeReady, setMergeReady] = useState(false);
   // THIS IS WHERE I AM DEFINING WHAT HAPPENS ON RETURN
   window.electron.ipcRenderer.once('get-clients', (arg) => {
     // eslint-disable-next-line no-console
@@ -86,13 +89,17 @@ function Hello() {
     } else if (vopPath === 'Please select a path with the VOP ...') {
       console.log('No VOP path selected');
       setErrorMessage('No VOP folder path selected');
-    } else if (vopPath === "Not a valid VOP, no xml file detected ...") {
-      console.log('Not a valid VOP, no xml file detected ...')
+    } else if (vopPath === 'Not a valid VOP, no xml file detected ...') {
+      console.log('Not a valid VOP, no xml file detected ...');
       setErrorMessage('Not a valid VOP, no xml file detected ...');
     } else {
       console.log('Validating input');
       setErrorMessage('Validating Input');
-      window.electron.ipcRenderer.sendMessage('validate-xml', [vopPath, contentPath]);
+      window.electron.ipcRenderer.sendMessage('validate-xml', [
+        vopPath,
+        contentPath,
+      ]);
+      window.electron.ipcRenderer.sendMessage('get-package-name', vopPath);
     }
   };
 
@@ -107,6 +114,46 @@ function Hello() {
     console.log(xmlData);
     // console.log(clients);
   });
+
+  // THIS IS WHERE I AM DEFINING WHAT HAPPENS ON RETURN
+  window.electron.ipcRenderer.once('get-package-name', (arg) => {
+    console.log('Got the Package name');
+    console.log(arg);
+    setPackageName(arg.packageName);
+    setDopName(arg.dopName);
+  });
+
+  const checkPass = (value) => {
+    const result = [value.ymlContent, value.version, value.ymlVersion].every(
+      (val) => {
+        return val === '-' || val === value.xmlVersion;
+      }
+    );
+    return result;
+  };
+
+  const checkMergeReady = () => {
+    let result = false;
+
+    if (xmlData.length > 0) {
+      for (const value in xmlData) {
+        if (xmlData.every((value) => checkPass(value))) {
+          result = true;
+        }
+      }
+    } else {
+      result = false;
+    }
+
+    return result;
+  };
+
+  // const isBelowThreshold = (currentValue) => currentValue < 40;
+
+  // const array1 = [1, 30, 39, 29, 10, 13];
+
+  // console.log(array1.every(isBelowThreshold));
+  // // Expected output: true
 
   return (
     <div>
@@ -148,8 +195,8 @@ function Hello() {
               <div>Alna Version: {selectedClient.alnaVersion} </div>
             </div>
             <div className="package-info">
-              <div>Package Name: {selectedClient.name}</div>
-              <div>File: {selectedClient.alnaVersion} </div>
+              <div>Package Name: {packageName}</div>
+              <div>File: {dopName} </div>
             </div>
             <div className="table-columns header">
               <div>Volume</div>
@@ -163,18 +210,17 @@ function Hello() {
             </div>
             {xmlData.map((value) => {
               return (
-                <div className="table-columns">
+                <div
+                  className={
+                    'table-columns ' + (checkPass(value) ? 'pass' : 'fail')
+                  }
+                >
                   <div>{value.packageName}</div>
                   <div>{value.ymlContent}</div>
                   <div>{value.version}</div>
                   <div>{value.ymlVersion}</div>
                   <div>{value.xmlVersion}</div>
-                  <div>
-                    {value.ymlContent === value.ymlVersion ||
-                    value.ymlContent === '-'
-                      ? 'Pass'
-                      : 'Fail'}
-                  </div>
+                  <div>{checkPass(value) ? 'Pass' : 'Fail'}</div>
                   <div>{value.size} Mb</div>
                   <div> {value.installTime / 60} mins </div>
                 </div>
@@ -185,10 +231,11 @@ function Hello() {
           <div>{errorMessage}</div>
         )}
       </div>
-      {errorMessage === 'Validating Input' && 
-      (<div className="btn-merge" onClick={handleValidate}>
-        Merge
-      </div>)}
+      {(checkMergeReady() && errorMessage === 'Validating Input') && (
+        <div className="btn-merge" onClick={handleValidate}>
+          Merge
+        </div>
+      )} 
     </div>
   );
 }

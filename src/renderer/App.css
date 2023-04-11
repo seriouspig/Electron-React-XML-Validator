@@ -196,6 +196,14 @@ a:hover {
       background-color: white;
 }
 
+.table-columns.pass > div {
+  background: rgb(170, 212, 170);
+}
+
+.table-columns.fail > div {
+  background: rgb(250, 136, 136);
+}
+
 .btn-merge {
   border: 1px solid black;
   text-align: center;
