@@ -21,7 +21,7 @@ function Hello() {
   const [isVopValid, setIsVopValid] = useState(false);
   const [packageName, setPackageName] = useState('');
   const [dopName, setDopName] = useState('');
-  const [mergeReady, setMergeReady] = useState(false);
+  const [mergeStatus, setMergeStatus] = useState('Not merging');
   // THIS IS WHERE I AM DEFINING WHAT HAPPENS ON RETURN
   window.electron.ipcRenderer.once('get-clients', (arg) => {
     // eslint-disable-next-line no-console
@@ -148,12 +148,17 @@ function Hello() {
     return result;
   };
 
-  // const isBelowThreshold = (currentValue) => currentValue < 40;
+  // Merge
 
-  // const array1 = [1, 30, 39, 29, 10, 13];
+  const handleMerge = () => {
+    console.log('Merging content/inbox to vop');
+    window.electron.ipcRenderer.sendMessage('merge', [vopPath, contentPath]);
+  };
 
-  // console.log(array1.every(isBelowThreshold));
-  // // Expected output: true
+  window.electron.ipcRenderer.once('merge', (arg) => {
+    // console.log(arg);
+    setMergeStatus(arg);
+  });
 
   return (
     <div>
@@ -230,12 +235,13 @@ function Hello() {
         ) : (
           <div>{errorMessage}</div>
         )}
+        <div>{mergeStatus}</div>
       </div>
-      {(checkMergeReady() && errorMessage === 'Validating Input') && (
-        <div className="btn-merge" onClick={handleValidate}>
+      {checkMergeReady() && errorMessage === 'Validating Input' && (
+        <div className="btn-merge" onClick={handleMerge}>
           Merge
         </div>
-      )} 
+      )}
     </div>
   );
 }

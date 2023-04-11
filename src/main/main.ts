@@ -21,6 +21,7 @@ var convert = require('xml-js');
 const glob = require('glob');
 const yaml = require('js-yaml');
 const fastFolderSizeSync = require('fast-folder-size/sync');
+const fse = require('fs-extra');
 
 class AppUpdater {
   constructor() {
@@ -299,6 +300,32 @@ ipcMain.on('get-package-name', async (event, arg) => {
   replyObject.dopName = files[0];
   event.reply('get-package-name', replyObject);
 });
+
+// ------------------ MERGE -----------------
+
+ipcMain.on('merge', async (event, arg) => {
+  console.log(arg[0]);
+  console.log('------ this is the VOP path: ');
+  console.log(arg[0][0]);
+  console.log('-------this is the content path: ');
+  console.log(arg[1][0]);
+
+  const srcDir = arg[1][0];
+  const destDir = arg[0][0];
+
+  // To copy a folder or file, select overwrite accordingly
+  try {
+    fse.copySync(srcDir, destDir, { overwrite: true });
+    console.log('success!');
+    event.reply('merge', 'Merge Successfull !!!');
+  } catch (err) {
+    console.error(err);
+    event.reply('merge', 'Merge Failed !!!');
+  }
+});
+
+
+
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
