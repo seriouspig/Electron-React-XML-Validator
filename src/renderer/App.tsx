@@ -12,6 +12,9 @@ function Hello() {
   const [vopPath, setVopPath] = useState(
     'Please select a path with the VOP ...'
   );
+  const [dbPath, setDbPath] = useState(
+    'Please select a path with the database ...'
+  );
   const [xmlData, setXmlData] = useState([]);
   const [alnaVersion, setAlnaVersion] = useState(null);
   const [clients, setClients] = useState([]);
@@ -21,7 +24,9 @@ function Hello() {
   const [isVopValid, setIsVopValid] = useState(false);
   const [packageName, setPackageName] = useState('');
   const [dopName, setDopName] = useState('');
-  const [mergeStatus, setMergeStatus] = useState('Not merging');
+  const [mergeStatus, setMergeStatus] = useState('');
+  const [dbStatus, setDbStatus] = useState('');
+  const [dbAddStatus, setDbAddStatus] = useState('');
   // THIS IS WHERE I AM DEFINING WHAT HAPPENS ON RETURN
   window.electron.ipcRenderer.once('get-clients', (arg) => {
     // eslint-disable-next-line no-console
@@ -49,6 +54,11 @@ function Hello() {
     setVopPath(arg);
   });
 
+  window.electron.ipcRenderer.once('open-dialog-database', (arg) => {
+    // console.log(arg);
+    setDbPath(arg);
+  });
+
   window.electron.ipcRenderer.sendMessage('ipc-example', ['ping']);
 
   const handleSelectContentFolder = () => {
@@ -61,8 +71,15 @@ function Hello() {
     window.electron.ipcRenderer.sendMessage('open-dialog-vop');
   };
 
+  const handleSelectDatabase = () => {
+    // THIS IS WHERE I AM CALLING AN ACTION WHICH IS DEFINED IN MAIN.TS
+    window.electron.ipcRenderer.sendMessage('open-dialog-database');
+    setDbAddStatus('')
+  };
+
   const selectClient = (id) => {
     setErrorMessage(null);
+    setMergeStatus('');
     console.log('Client selected: ' + id);
     console.log(clients);
     for (const client of clients) {
@@ -79,7 +96,7 @@ function Hello() {
 
   const handleValidate = () => {
     window.electron.ipcRenderer.sendMessage('error-message', errorMessage);
-
+    setMergeStatus('');
     if (isObjEmpty(selectedClient)) {
       console.log('No client selected');
       setErrorMessage('No Client Selected');
@@ -152,13 +169,30 @@ function Hello() {
 
   const handleMerge = () => {
     console.log('Merging content/inbox to vop');
+    setMergeStatus('Merging...');
     window.electron.ipcRenderer.sendMessage('merge', [vopPath, contentPath]);
   };
 
   window.electron.ipcRenderer.once('merge', (arg) => {
     // console.log(arg);
     setMergeStatus(arg);
+    window.electron.ipcRenderer.sendMessage('check-database', vopPath);
   });
+
+  window.electron.ipcRenderer.once('check-database', (arg) => {
+    console.log(arg);
+    setDbStatus(arg);
+  });
+
+  const handleAddDatabase = () => {
+    setDbAddStatus('Adding database to inbox volume...')
+    window.electron.ipcRenderer.sendMessage('add-database', [dbPath, vopPath]);
+  };
+
+    window.electron.ipcRenderer.once('add-database', (arg) => {
+      // console.log(arg);
+      setDbAddStatus(arg);
+    });
 
   return (
     <div>
@@ -236,12 +270,31 @@ function Hello() {
           <div>{errorMessage}</div>
         )}
         <div>{mergeStatus}</div>
+        {mergeStatus === 'Merge Successfull !!!' && (
+          <div>Database: {dbStatus}</div>
+        )}
+        {mergeStatus === 'Merge Successfull !!!' && (
+          <div className="path-selector">
+            <div className="btn-path-selector" onClick={handleSelectDatabase}>
+              <p>Select database to add:</p>
+            </div>
+            <div className="btn-path">{dbPath}</div>
+          </div>
+        )}
+        {dbPath.length > 0 && dbPath[0].endsWith('.sql') && (
+          <div className="btn" onClick={handleAddDatabase}>
+            Add database
+          </div>
+        )}
+        <div>{dbAddStatus}</div>
       </div>
-      {checkMergeReady() && errorMessage === 'Validating Input' && (
-        <div className="btn-merge" onClick={handleMerge}>
-          Merge
-        </div>
-      )}
+      {checkMergeReady() &&
+        errorMessage === 'Validating Input' &&
+        mergeStatus === '' && (
+          <div className="btn-merge" onClick={handleMerge}>
+            Merge
+          </div>
+        )}
     </div>
   );
 }

@@ -85,6 +85,26 @@ ipcMain.on('open-dialog-vop', async (event, arg) => {
     });
 });
 
+ipcMain.on('open-dialog-database', async (event, arg) => {
+  dialog
+    .showOpenDialog(mainWindow, {
+      properties: ['openFile'],
+      filters: [{ name: 'Database', extensions: ['sql'] }],
+    })
+    .then((result) => {
+      // console.log(result.canceled);
+      console.log(result.filePaths);
+      // Check if folder contains vopLoad_bluebox_1.5.4.xml
+
+
+        event.reply('open-dialog-database', result.filePaths);
+
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
+
 ipcMain.on('error-message', async (event, arg) => {
   console.log('-------- ERROR MESSAGE -------');
   console.log(arg);
@@ -321,6 +341,37 @@ ipcMain.on('merge', async (event, arg) => {
   } catch (err) {
     console.error(err);
     event.reply('merge', 'Merge Failed !!!');
+  }
+});
+
+ipcMain.on('check-database', async (event, arg) => {
+  console.log(arg[0]);
+  if (fs.existsSync(arg[0] + '/vopPackage_bluebox_inbox/inbox/bbdb.sql')) {
+        event.reply('check-database', 'bbdb.sql found in inbox volume');
+  } else {
+      event.reply('check-database', 'NO bbdb.sql found in inbox volume !!!');
+  }
+
+});
+
+ipcMain.on('add-database', async (event, arg) => {
+
+
+  const srcDir = arg[0][0];
+  const destDir = arg[1][0] + '/vopPackage_bluebox_inbox/inbox/bbdb.sql';
+
+  // fs.copyFile('source.txt', 'destination.txt', (err) => {
+  //   if (err) throw err;
+  //   console.log('source.txt was copied to destination.txt');
+  // });
+  // To copy a folder or file, select overwrite accordingly
+  try {
+    fse.copyFile(srcDir, destDir);
+    console.log('success!');
+    event.reply('add-database', 'Database successfully added to inbox volume');
+  } catch (err) {
+    console.error(err);
+    event.reply('add-database', 'Database add failed !!!');
   }
 });
 

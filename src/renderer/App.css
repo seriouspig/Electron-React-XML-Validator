@@ -120,6 +120,21 @@ a:hover {
   margin-top: 50px;
 }
 
+.btn {
+  border: 1px solid black;
+  width: 50%;
+  height: 50px;
+  overflow-wrap: break-word;
+  margin: 15px auto;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn:hover {
+  cursor: pointer;
+}
+
 .btn-path {
   border: 1px solid black;
   width: 50%;
@@ -153,7 +168,6 @@ a:hover {
 
 .validation-form {
   text-align: center;
-  
 }
 
 .validation-table {
@@ -172,7 +186,7 @@ a:hover {
   background: white;
 }
 
-.package-info{
+.package-info {
   display: flex;
   justify-content: space-between;
   border-bottom: 1px solid black;
@@ -193,7 +207,7 @@ a:hover {
 
 .table-columns > div {
   width: 100%;
-      background-color: white;
+  background-color: white;
 }
 
 .table-columns.pass > div {
