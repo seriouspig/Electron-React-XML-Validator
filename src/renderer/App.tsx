@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import ClientButton from './components/ClientButton';
 import { getRandomValues } from 'crypto';
 import { validateHeaderValue } from 'http';
+import DropDown from './components/DropDown';
 
 function Hello() {
   const [contentPath, setContentPath] = useState(
@@ -74,7 +75,7 @@ function Hello() {
   const handleSelectDatabase = () => {
     // THIS IS WHERE I AM CALLING AN ACTION WHICH IS DEFINED IN MAIN.TS
     window.electron.ipcRenderer.sendMessage('open-dialog-database');
-    setDbAddStatus('')
+    setDbAddStatus('');
   };
 
   const selectClient = (id) => {
@@ -185,17 +186,34 @@ function Hello() {
   });
 
   const handleAddDatabase = () => {
-    setDbAddStatus('Adding database to inbox volume...')
+    setDbAddStatus('Adding database to inbox volume...');
     window.electron.ipcRenderer.sendMessage('add-database', [dbPath, vopPath]);
   };
 
-    window.electron.ipcRenderer.once('add-database', (arg) => {
-      // console.log(arg);
-      setDbAddStatus(arg);
-    });
+  window.electron.ipcRenderer.once('add-database', (arg) => {
+    // console.log(arg);
+    setDbAddStatus(arg);
+  });
+
+    const handleMenuOne = () => {
+      console.log('clicked one');
+    };
+
+    const handleMenuTwo = () => {
+      console.log('clicked two');
+    };
+
 
   return (
-    <div>
+    <div className="container">
+      <div className="path-selector">
+        <DropDown
+          trigger={
+            <button className="btn btn-path-selector">Choose Client</button>
+          }
+          menu={clients}
+        />
+      </div>
       <div className="clients">
         <div>Choose Client:</div>
         {clients.map((client) => {
@@ -212,22 +230,31 @@ function Hello() {
         })}
       </div>
       <div className="path-selector">
-        <div className="btn-path-selector" onClick={handleSelectContentFolder}>
-          <p>Select Content/Inbox Path:</p>
+        <div
+          className="btn btn-path-selector"
+          onClick={handleSelectContentFolder}
+        >
+          Select Content/Inbox Path:
         </div>
         <div className="btn-path">{contentPath}</div>
       </div>
       <div className="path-selector">
-        <div className="btn-path-selector" onClick={handleSelectVopFolder}>
+        <div className="btn btn-path-selector" onClick={handleSelectVopFolder}>
           Select VOP Path:
         </div>
         <div className="btn-path">{vopPath}</div>
       </div>
-      <div className="btn-validate" onClick={handleValidate}>
-        Validate
+      <div className="path-selector">
+        <div className="btn btn-path-selector" onClick={handleValidate}>
+          Validate
+        </div>
+        {errorMessage !== 'Validating Input' && (
+          <div className="message-box">{errorMessage}</div>
+        )}
       </div>
+
       <div className="validation-form">
-        {errorMessage === 'Validating Input' ? (
+        {errorMessage === 'Validating Input' && (
           <div className="validation-table">
             <div className="client-info">
               <div>Client: {selectedClient.name}</div>
@@ -238,14 +265,14 @@ function Hello() {
               <div>File: {dopName} </div>
             </div>
             <div className="table-columns header">
-              <div>Volume</div>
-              <div>Metadata YML</div>
-              <div>Version</div>
-              <div>VOP YML</div>
-              <div>VOP XML</div>
-              <div>Pass</div>
-              <div>Size</div>
-              <div>Install Time</div>
+              <div className="cell first">Volume</div>
+              <div className="cell">Metadata YML</div>
+              <div className="cell">Version</div>
+              <div className="cell">VOP YML</div>
+              <div className="cell">VOP XML</div>
+              <div className="cell">Pass</div>
+              <div className="cell">Size</div>
+              <div className="cell">Install Time</div>
             </div>
             {xmlData.map((value) => {
               return (
@@ -254,20 +281,24 @@ function Hello() {
                     'table-columns ' + (checkPass(value) ? 'pass' : 'fail')
                   }
                 >
-                  <div>{value.packageName}</div>
-                  <div>{value.ymlContent}</div>
-                  <div>{value.version}</div>
-                  <div>{value.ymlVersion}</div>
-                  <div>{value.xmlVersion}</div>
-                  <div>{checkPass(value) ? 'Pass' : 'Fail'}</div>
-                  <div>{value.size} Mb</div>
-                  <div> {value.installTime / 60} mins </div>
+                  <div className="cell first">
+                    {value.packageName.substring(
+                      value.packageName.indexOf('_') + 1
+                    )}
+                  </div>
+                  <div className="cell">{value.ymlContent}</div>
+                  <div className="cell">{value.version}</div>
+                  <div className="cell">{value.ymlVersion}</div>
+                  <div className="cell">{value.xmlVersion}</div>
+                  <div className="cell">
+                    {checkPass(value) ? 'Pass' : 'Fail'}
+                  </div>
+                  <div className="cell">{value.size} Mb</div>
+                  <div className="cell"> {value.installTime / 60} mins </div>
                 </div>
               );
             })}
           </div>
-        ) : (
-          <div>{errorMessage}</div>
         )}
         <div>{mergeStatus}</div>
         {mergeStatus === 'Merge Successfull !!!' && (
@@ -275,24 +306,31 @@ function Hello() {
         )}
         {mergeStatus === 'Merge Successfull !!!' && (
           <div className="path-selector">
-            <div className="btn-path-selector" onClick={handleSelectDatabase}>
-              <p>Select database to add:</p>
+            <div
+              className="btn btn-path-selector"
+              onClick={handleSelectDatabase}
+            >
+              Select database to add:
             </div>
             <div className="btn-path">{dbPath}</div>
           </div>
         )}
         {dbPath.length > 0 && dbPath[0].endsWith('.sql') && (
-          <div className="btn" onClick={handleAddDatabase}>
-            Add database
+          <div className="path-selector">
+            <div className="btn btn-path-selector" onClick={handleAddDatabase}>
+              Add database
+            </div>
+            <div className="message-box">{dbAddStatus}</div>
           </div>
         )}
-        <div>{dbAddStatus}</div>
       </div>
       {checkMergeReady() &&
         errorMessage === 'Validating Input' &&
         mergeStatus === '' && (
-          <div className="btn-merge" onClick={handleMerge}>
-            Merge
+          <div className="path-selector">
+            <div className="btn btn-merge" onClick={handleMerge}>
+              Merge
+            </div>
           </div>
         )}
     </div>

@@ -1,107 +1,186 @@
 /*
- * @NOTE: Prepend a `~` to css file paths that are in your node_modules
- *        See https://github.com/webpack-contrib/sass-loader#imports
- */
-/* body {
-  position: relative;
-  color: white;
-  height: 100vh;
-  background: linear-gradient(
-    200.96deg,
-    #fedc2a -29.09%,
-    #dd5789 51.77%,
-    #7a2c9e 129.35%
-  );
-  font-family: sans-serif;
-  overflow-y: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+=============== 
+Fonts
+===============
+*/
+@import url('https://fonts.googleapis.com/css?family=Open+Sans|Roboto:400,700&display=swap');
+
+/*
+=============== 
+Variables
+===============
+*/
+
+:root {
+  /* dark shades of primary color*/
+  --clr-primary-1: hsl(0, 0%, 0%);
+  --clr-primary-2: hsl(43, 77%, 27%);
+  --clr-primary-3: hsl(43, 72%, 37%);
+  --clr-primary-4: hsl(42, 63%, 48%);
+  /* primary/main color */
+  --clr-primary-5: hsl(42, 78%, 60%);
+  /* lighter shades of primary color */
+  --clr-primary-6: hsl(43, 89%, 70%);
+  --clr-primary-7: hsl(43, 90%, 76%);
+  --clr-primary-8: hsl(45, 86%, 81%);
+  --clr-primary-9: hsl(45, 90%, 88%);
+  --clr-primary-10: hsl(45, 100%, 96%);
+  /* darkest grey - used for headings */
+  --clr-grey-1: hsl(209, 61%, 16%);
+  --clr-grey-2: hsl(211, 39%, 23%);
+  --clr-grey-3: hsl(209, 34%, 30%);
+  --clr-grey-4: hsl(209, 28%, 39%);
+  /* grey used for paragraphs */
+  --clr-grey-5: hsl(210, 22%, 49%);
+  --clr-grey-6: hsl(209, 23%, 60%);
+  --clr-grey-7: hsl(211, 27%, 70%);
+  --clr-grey-8: hsl(210, 31%, 80%);
+  --clr-grey-9: hsl(212, 33%, 89%);
+  --clr-grey-10: hsl(210, 36%, 96%);
+  --clr-white: #fff;
+  --ff-primary: 'Roboto', sans-serif;
+  --ff-secondary: 'Open Sans', sans-serif;
+  --transition: all 0.3s linear;
+  --spacing: 0.25rem;
+  --radius: 0.5rem;
+  --light-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  --dark-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  --max-width: 1170px;
 }
 
-button {
-  background-color: white;
-  padding: 10px 20px;
-  border-radius: 10px;
-  border: none;
-  appearance: none;
-  font-size: 1.3rem;
-  box-shadow: 0px 8px 28px -6px rgba(24, 39, 75, 0.12),
-    0px 18px 88px -4px rgba(24, 39, 75, 0.14);
-  transition: all ease-in 0.1s;
-  cursor: pointer;
-  opacity: 0.9;
-}
+/*
+=============== 
+Global Styles
+===============
+*/
 
-button:hover {
-  transform: scale(1.05);
-  opacity: 1;
-}
-
-li {
-  list-style: none;
-}
-
-a {
-  text-decoration: none;
-  height: fit-content;
-  width: fit-content;
-  margin: 10px;
-}
-
-a:hover {
-  opacity: 1;
-  text-decoration: none;
-}
-
-.Hello {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 20px 0;
-} */
-
-* {
+*,
+::after,
+::before {
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
 }
+body {
+  font-family: var(--ff-secondary);
+  background: rgb(191, 201, 221);
+  color: var(--clr-grey-1);
+  font-size: 0.875rem;
+}
+ul {
+  list-style-type: none;
+}
+a {
+  text-decoration: none;
+}
+img:not(.nav-logo) {
+  width: 100%;
+  display: block;
+}
 
-.App {
+h1,
+h2,
+h3,
+h4 {
+  letter-spacing: var(--spacing);
+  text-transform: capitalize;
+  line-height: 1.25;
+  margin-bottom: 0.75rem;
+  font-family: var(--ff-primary);
+}
+h1 {
+  font-size: 3rem;
+}
+h2 {
+  font-size: 2rem;
+}
+h3 {
+  font-size: 1.25rem;
+}
+h4 {
+  font-size: 0.875rem;
+}
+p {
+  margin-bottom: 1.25rem;
+  color: var(--clr-grey-5);
+}
+@media screen and (min-width: 800px) {
+  h1 {
+    font-size: 4rem;
+  }
+  h2 {
+    font-size: 2.5rem;
+  }
+  h3 {
+    font-size: 1.75rem;
+  }
+  h4 {
+    font-size: 1rem;
+  }
+  body {
+    font-size: 1rem;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    line-height: 1;
+  }
+}
+/*  global classes */
+
+.btn {
+  text-transform: uppercase;
+  background: var(--clr-primary-5);
+  color: var(--clr-primary-1);
+  padding: 0.2rem 0.5rem;
+  display: inline-block;
+  transition: var(--transition);
+  font-size: 0.875rem;
+  border: 2px solid transparent;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius);
+}
+.btn:hover {
+  color: var(--clr-primary-1);
+  background: var(--clr-primary-7);
+}
+
+/* section */
+.section {
+  padding: 5rem 0;
+}
+
+.section-center {
+  width: 90vw;
+  margin: 0 auto;
+  max-width: 1170px;
+}
+@media screen and (min-width: 992px) {
+  .section-center {
+    width: 95vw;
+  }
+}
+/* added during recording */
+
+.underline {
+  width: 5rem;
+  height: 0.25rem;
+  margin-bottom: 1.25rem;
+  background: var(--clr-primary-5);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.section-title {
+  margin-bottom: 4rem;
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.container {
+  min-width: 90%;
+  
 }
 
 .clients {
@@ -115,36 +194,35 @@ a:hover {
 .path-selector {
   display: flex;
   justify-content: space-between;
-  max-width: 500px;
+  max-width: 90%;
   margin: 0 auto;
-  margin-top: 50px;
-}
-
-.btn {
-  border: 1px solid black;
-  width: 50%;
-  height: 50px;
-  overflow-wrap: break-word;
-  margin: 15px auto;
-  text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.btn:hover {
-  cursor: pointer;
+  margin-top: 1rem;
 }
 
 .btn-path {
   border: 1px solid black;
-  width: 50%;
-  height: 50px;
+  background: var(--clr-grey-7);
+  width: 58%;
+  min-height: 50px;
   overflow-wrap: break-word;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  padding: 0.1rem;
+}
+
+.message-box {
+  width: 58%;
+  min-height: 50px;
+  overflow-wrap: break-word;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  padding: 0.1rem;
 }
 
 .btn-path-selector {
   border: 1px solid black;
-  width: 40%;
+  min-width: 40%;
+  height: 50px;
   text-align: center;
   display: flex;
   align-items: center;
@@ -157,9 +235,12 @@ a:hover {
 
 .btn-validate {
   border: 1px solid black;
+  display: flex;
+  justify-content: space-between;
+  max-width: 20%;
+  margin: 0 auto;
   text-align: center;
-  width: 100px;
-  margin: 50px auto;
+  margin-top: 1rem;
 }
 
 .btn-validate:hover {
@@ -171,11 +252,12 @@ a:hover {
 }
 
 .validation-table {
-  margin: 50px 20px;
+  max-width: 90%;
+  margin: 1rem auto;
   border: 1px solid black;
   display: flex;
   flex-direction: column;
-  background: grey;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 .client-info {
@@ -184,13 +266,14 @@ a:hover {
   border-bottom: 1px solid black;
   width: 100%;
   background: white;
+  padding: 0.2rem;
 }
 
 .package-info {
   display: flex;
   justify-content: space-between;
-  border-bottom: 1px solid black;
   width: 100%;
+  padding: 0.2rem;
   background: white;
 }
 
@@ -198,16 +281,22 @@ a:hover {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   justify-items: center;
-  grid-gap: 1px;
+  font-size: 0.875rem;
+  background: white;
 }
 
 .header {
-  border-bottom: black 1px solid;
+  /* border-bottom: black 1px solid; */
 }
 
-.table-columns > div {
+.cell {
   width: 100%;
-  background-color: white;
+  background: white;
+  border-top: 1px solid black;
+  border-left: 1px solid black;
+}
+.first {
+  border-left: none;
 }
 
 .table-columns.pass > div {
@@ -220,9 +309,12 @@ a:hover {
 
 .btn-merge {
   border: 1px solid black;
+  min-width: 40%;
+  height: 50px;
   text-align: center;
-  width: 100px;
-  margin: 50px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-merge:hover {
