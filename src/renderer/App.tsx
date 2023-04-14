@@ -206,15 +206,12 @@ function Hello() {
 
   return (
     <div className="container">
-      <div className="path-selector">
+
         <DropDown
-          trigger={
-            <button className="btn btn-path-selector">Choose Client</button>
-          }
           menu={clients}
         />
-      </div>
-      <div className="clients">
+
+      {/* <div className="clients">
         <div>Choose Client:</div>
         {clients.map((client) => {
           return (
@@ -228,7 +225,7 @@ function Hello() {
             />
           );
         })}
-      </div>
+      </div> */}
       <div className="path-selector">
         <div
           className="btn btn-path-selector"

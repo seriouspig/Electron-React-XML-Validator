@@ -183,14 +183,6 @@ p {
   
 }
 
-.clients {
-  display: flex;
-  justify-content: space-between;
-  max-width: 500px;
-  margin: 0 auto;
-  margin-top: 50px;
-}
-
 .path-selector {
   display: flex;
   justify-content: space-between;
