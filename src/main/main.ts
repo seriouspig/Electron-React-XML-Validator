@@ -14,7 +14,6 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
-import { version } from 'os';
 
 const fs = require('fs');
 var convert = require('xml-js');
@@ -33,21 +32,26 @@ class AppUpdater {
 
 let mainWindow: BrowserWindow | null = null;
 
-ipcMain.on('ipc-example', async (event, arg) => {
-  const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
-  console.log(msgTemplate(arg));
-  event.reply('ipc-example', msgTemplate('pong'));
-});
-
 ipcMain.on('open-dialog-content', async (event, arg) => {
   dialog
     .showOpenDialog(mainWindow, {
       properties: ['openDirectory'],
     })
     .then((result) => {
-      // console.log(result.canceled);
-      console.log(result.filePaths);
-      event.reply('open-dialog-content', result.filePaths);
+      // Check if folder contains vopLoad_bluebox_inbox/metadata.yml or vopLoad_bluebox_inbox/metadata.yml
+      var files = fs
+        .readdirSync(result.filePaths[0])
+        .filter((fn) => fn.startsWith('vopPackage_bluebox_'))
+        .filter(fn => (['content','inbox'].some(char => fn.endsWith(char))));
+
+              if (files.length < 1) {
+                event.reply(
+                  'open-dialog-content',
+                  'Not a valid content / inbox ...'
+                );
+              } else {
+                event.reply('open-dialog-content', result.filePaths);
+              }
     })
     .catch((err) => {
       console.log(err);
@@ -60,14 +64,11 @@ ipcMain.on('open-dialog-vop', async (event, arg) => {
       properties: ['openDirectory'],
     })
     .then((result) => {
-      // console.log(result.canceled);
-      console.log(result.filePaths);
       // Check if folder contains vopLoad_bluebox_1.5.4.xml
       var files = fs
         .readdirSync(result.filePaths[0])
         .filter((fn) => fn.startsWith('vopLoad_bluebox_'))
         .filter((fn) => fn.endsWith('.xml'));
-      console.log(files[0]);
 
       if (files.length < 1) {
         event.reply(
@@ -77,8 +78,6 @@ ipcMain.on('open-dialog-vop', async (event, arg) => {
       } else {
         event.reply('open-dialog-vop', result.filePaths);
       }
-
-      console.log(result.filePaths + '/' + files);
     })
     .catch((err) => {
       console.log(err);
@@ -92,22 +91,11 @@ ipcMain.on('open-dialog-database', async (event, arg) => {
       filters: [{ name: 'Database', extensions: ['sql'] }],
     })
     .then((result) => {
-      // console.log(result.canceled);
-      console.log(result.filePaths);
-      // Check if folder contains vopLoad_bluebox_1.5.4.xml
-
-
-        event.reply('open-dialog-database', result.filePaths);
-
+      event.reply('open-dialog-database', result.filePaths);
     })
     .catch((err) => {
       console.log(err);
     });
-});
-
-ipcMain.on('error-message', async (event, arg) => {
-  console.log('-------- ERROR MESSAGE -------');
-  console.log(arg);
 });
 
 ipcMain.on('get-clients', async (event, arg) => {
@@ -119,8 +107,6 @@ ipcMain.on('get-clients', async (event, arg) => {
         event.reply('get-clients', error);
         return;
       }
-      console.log(JSON.parse(data).clients);
-      console.log('======== DUPA BLADA =========');
       event.reply('get-clients', JSON.parse(data).clients);
     }
   );
@@ -129,12 +115,6 @@ ipcMain.on('get-clients', async (event, arg) => {
 // ------------------ VALIDATE XML -----------------
 
 ipcMain.on('validate-xml', async (event, arg) => {
-  console.log(arg[0]);
-  console.log('------ this is the VOP path: ');
-  console.log(arg[0][0]);
-  console.log('-------this is the content path: ');
-  console.log(arg[1][0]);
-
   const objArray = [];
 
   var files = fs.readdirSync(arg[0][0]).filter((fn) => fn.endsWith('.xml'));
@@ -147,19 +127,12 @@ ipcMain.on('validate-xml', async (event, arg) => {
     }
     var result = convert.xml2json(data, { compact: false, spaces: 4 });
 
-    // console.log(JSON.parse(result).elements[1].elements);
-
-    // Now check the metadata in each yml and create an object
     var ymlDirs = fs
       .readdirSync(arg[0][0])
       .filter((dn) => dn.startsWith('vopPackage_bluebox'));
-    console.log(ymlDirs);
 
     var xmlObject = JSON.parse(result).elements[1].elements;
-    console.log('=========== THIS IS THE XML OBJECT ===============');
-    console.log(xmlObject);
-    console.log(xmlObject[0].elements[1].attributes.seconds);
-    xmlObject.map((value) => console.log(value.attributes.id));
+
     xmlObject.map((value) =>
       objArray.push({
         xmlVersion: value.attributes.version,
@@ -171,41 +144,16 @@ ipcMain.on('validate-xml', async (event, arg) => {
     var packageNames = [];
     xmlObject.map((value) => packageNames.push(value.attributes.id));
 
-    console.log(objArray);
-    console.log(packageNames);
-
     objArray.map((value) => {
       if (ymlDirs.includes('vopPackage_' + value.packageName)) {
-        console.log(value.packageName + ' exists in the object');
-
         // Get the size of each folder
         const bytes = fastFolderSizeSync(
           arg[0] + '/' + 'vopPackage_' + value.packageName
         );
 
-        console.log(
-          '------------------ SIZE OF ' +
-            value.packageName +
-            ' is: ' +
-            Math.round(bytes / 1000000) +
-            ' Mb'
-        );
         value.size = Math.round(bytes / 1000000);
 
         // Get the version from each folder
-        console.log('================= THIS IS THE VERSION FILE : ');
-        console.log(
-          arg[0][0] +
-            '/' +
-            'vopPackage_' +
-            value.packageName +
-            '/' +
-            value.packageName.replace('bluebox_', '') +
-            '/' +
-            value.packageName.replace('bluebox_', '') +
-            'version'
-        );
-
         const versionFile =
           arg[0][0] +
           '/' +
@@ -220,15 +168,13 @@ ipcMain.on('validate-xml', async (event, arg) => {
         if (fs.existsSync(versionFile))
           try {
             var data = fs.readFileSync(versionFile, 'utf8');
-            console.log(data.toString());
 
-              value.version = data.toString();
-
+            value.version = data.toString();
           } catch (e) {
             console.log('Error:', e.stack);
           }
         else {
-          value.version = '-'
+          value.version = '-';
         }
 
         // Read the packaged Version from each yml
@@ -347,16 +293,13 @@ ipcMain.on('merge', async (event, arg) => {
 ipcMain.on('check-database', async (event, arg) => {
   console.log(arg[0]);
   if (fs.existsSync(arg[0] + '/vopPackage_bluebox_inbox/inbox/bbdb.sql')) {
-        event.reply('check-database', 'bbdb.sql found in inbox volume');
+    event.reply('check-database', 'bbdb.sql found in inbox volume');
   } else {
-      event.reply('check-database', 'NO bbdb.sql found in inbox volume !!!');
+    event.reply('check-database', 'NO bbdb.sql found in inbox volume !!!');
   }
-
 });
 
 ipcMain.on('add-database', async (event, arg) => {
-
-
   const srcDir = arg[0][0];
   const destDir = arg[1][0] + '/vopPackage_bluebox_inbox/inbox/bbdb.sql';
 
@@ -374,9 +317,6 @@ ipcMain.on('add-database', async (event, arg) => {
     event.reply('add-database', 'Database add failed !!!');
   }
 });
-
-
-
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
