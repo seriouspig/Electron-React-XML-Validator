@@ -195,22 +195,31 @@ function Hello() {
         {errorMessage === 'Validating Input' && (
           <div className="validation-table">
             <div className="client-info">
-              <div>Client: {selectedClient.name}</div>
-              <div>Alna Version: {selectedClient.alnaVersion} </div>
+              <div>
+                Client: <span className="titles">{selectedClient.name}</span>
+              </div>
+              <div>
+                Alna Version:{' '}
+                <span className="titles">{selectedClient.alnaVersion}</span>{' '}
+              </div>
             </div>
             <div className="package-info">
-              <div>Package Name: {packageName}</div>
-              <div>File: {dopName} </div>
+              <div>
+                Package Name: <span className="titles">{packageName}</span>
+              </div>
+              <div>
+                File: <span className="titles">{dopName}</span>{' '}
+              </div>
             </div>
             <div className="table-columns header">
-              <div className="cell first">Volume</div>
-              <div className="cell">Metadata YML</div>
-              <div className="cell">Version</div>
-              <div className="cell">VOP YML</div>
-              <div className="cell">VOP XML</div>
-              <div className="cell">Pass</div>
-              <div className="cell">Size</div>
-              <div className="cell">Install Time</div>
+              <div className="cell first titles">Volume</div>
+              <div className="cell titles">YML</div>
+              <div className="cell titles">Version</div>
+              <div className="cell titles">VOP YML</div>
+              <div className="cell titles">VOP XML</div>
+              <div className="cell titles">Pass</div>
+              <div className="cell titles">Size</div>
+              <div className="cell titles">Install Time</div>
             </div>
             {xmlData.map((value) => {
               return (
@@ -236,7 +245,10 @@ function Hello() {
                     )}
                   </div>
                   <div className="cell">{value.size} Mb</div>
-                  <div className="cell"> {value.installTime / 60} mins </div>
+                  <div className="cell last">
+                    {' '}
+                    {value.installTime / 60} mins{' '}
+                  </div>
                 </div>
               );
             })}
